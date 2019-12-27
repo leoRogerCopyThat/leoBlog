@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="https://www.w3.org/2005/Atom">
+  <title>Leo</title>
+  <icon>https://leo.red/icon.png</icon>
+  <subtitle>咕咕</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="https://leo.red/"/>
+  <updated>2019-12-27T14:55:40.133Z</updated>
+  <id>https://leo.red/</id>
+  
+  <author>
+    <name>Leo</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>属于年少的迷茫</title>
+    <link href="https://leo.red/2019/01/26/%E5%B1%9E%E4%BA%8E%E5%B9%B4%E5%B0%91%E7%9A%84%E8%BF%B7%E8%8C%AB/"/>
+    <id>https://leo.red/2019/01/26/%E5%B1%9E%E4%BA%8E%E5%B9%B4%E5%B0%91%E7%9A%84%E8%BF%B7%E8%8C%AB/</id>
+    <published>2019-01-25T16:15:41.000Z</published>
+    <updated>2019-12-27T14:55:40.133Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;2019年，人生已经走过了23个年头&lt;br&gt;最近心情莫名的波动，思绪万千&lt;/p&gt;
+&lt;p&gt;下午领导又来催收年终总结&lt;br&gt;本就想回顾今年工作，思绪却拦不住的涌了出来&lt;br&gt;一愣神的功夫，竟回顾了我在这颗星球的23年&lt;/p&gt;
+&lt;p&gt;要说我的学生生涯，不是教科书级别的差生也差不太
+      
+    
+    </summary>
+    
+    
+      <category term="闲聊" scheme="https://leo.red/categories/%E9%97%B2%E8%81%8A/"/>
+    
+    
+      <category term="闲聊" scheme="https://leo.red/tags/%E9%97%B2%E8%81%8A/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>我的个拖延症啊</title>
+    <link href="https://leo.red/2019/01/02/%E6%88%91%E7%9A%84%E4%B8%AA%E6%8B%96%E5%BB%B6%E7%97%87%E5%95%8A/"/>
+    <id>https://leo.red/2019/01/02/%E6%88%91%E7%9A%84%E4%B8%AA%E6%8B%96%E5%BB%B6%E7%97%87%E5%95%8A/</id>
+    <published>2019-01-02T12:12:26.000Z</published>
+    <updated>2019-12-27T14:55:43.598Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;note station 里的待办事项都已经撑满到一页显示不下&lt;br&gt;就连关系到奖金和收入的年终总结和给客户的报价单都懒得写&lt;br&gt;部门经理过来催收了好几次，还打趣问我年终奖还想不想要了，一时语塞&lt;br&gt;仿佛到了年末做啥都提不起兴趣，是期待着放假？还是想逃避繁杂的事情？我也
+      
+    
+    </summary>
+    
+    
+      <category term="闲聊" scheme="https://leo.red/categories/%E9%97%B2%E8%81%8A/"/>
+    
+    
+      <category term="闲聊" scheme="https://leo.red/tags/%E9%97%B2%E8%81%8A/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>踩一波18年的小尾巴</title>
+    <link href="https://leo.red/2018/12/31/%E8%B8%A9%E4%B8%80%E6%B3%A218%E5%B9%B4%E7%9A%84%E5%B0%8F%E5%B0%BE%E5%B7%B4/"/>
+    <id>https://leo.red/2018/12/31/%E8%B8%A9%E4%B8%80%E6%B3%A218%E5%B9%B4%E7%9A%84%E5%B0%8F%E5%B0%BE%E5%B7%B4/</id>
+    <published>2018-12-31T15:00:00.000Z</published>
+    <updated>2019-12-27T14:55:37.927Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;0x0-计划不就是写着装逼的么（误&quot;&gt;&lt;a href=&quot;#0x0-计划不就是写着装逼的么（误&quot; class=&quot;headerlink&quot; title=&quot;0x0 计划不就是写着装逼的么（误&quot;&gt;&lt;/a&gt;0x0 计划不就是写着装逼的么（误&lt;/h3&gt;&lt;p&gt;在2018年的小尾巴
+      
+    
+    </summary>
+    
+    
+      <category term="闲聊" scheme="https://leo.red/categories/%E9%97%B2%E8%81%8A/"/>
+    
+    
+      <category term="闲聊" scheme="https://leo.red/tags/%E9%97%B2%E8%81%8A/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Hello World</title>
+    <link href="https://leo.red/2018/12/31/hello-world/"/>
+    <id>https://leo.red/2018/12/31/hello-world/</id>
+    <published>2018-12-31T12:00:00.000Z</published>
+    <updated>2019-12-27T14:55:56.535Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;Hello World！&lt;/p&gt;
+
+      
+    
+    </summary>
+    
+    
+      <category term="Hi" scheme="https://leo.red/categories/Hi/"/>
+    
+    
+      <category term="Hi" scheme="https://leo.red/tags/Hi/"/>
+    
+  </entry>
+  
+</feed>
