@@ -15,7 +15,8 @@ index:
   enum_comma: ','
   enum_and: and
   articles: Writing
-  projects: Projects
+  # projects: Projects
+  projects: Links
   topics: Topics
   most_recent: Most recent
 
