@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://leo.red/"/>
-  <updated>2019-12-27T15:11:12.802Z</updated>
+  <updated>2019-12-27T16:03:33.103Z</updated>
   <id>https://leo.red/</id>
   
   <author>
@@ -15,6 +15,60 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>雷电3牛逼</title>
+    <link href="https://leo.red/2019/12/28/%E9%9B%B7%E7%94%B53%E7%89%9B%E9%80%BC/"/>
+    <id>https://leo.red/2019/12/28/%E9%9B%B7%E7%94%B53%E7%89%9B%E9%80%BC/</id>
+    <published>2019-12-28T04:02:00.000Z</published>
+    <updated>2019-12-27T16:03:33.103Z</updated>
+    
+    <content type="html"><![CDATA[<p>拿两台mac测试雷电3线<br>直接把ssd榨干也没到线的传输极限<br>雷电3牛逼！</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;拿两台mac测试雷电3线&lt;br&gt;直接把ssd榨干也没到线的传输极限&lt;br&gt;雷电3牛逼！&lt;/p&gt;
+
+      
+    
+    </summary>
+    
+    
+      <category term="code" scheme="https://leo.red/categories/code/"/>
+    
+    
+      <category term="code" scheme="https://leo.red/tags/code/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>mac10.15太坑了</title>
+    <link href="https://leo.red/2019/12/28/mac10.15%E5%A4%AA%E5%9D%91%E4%BA%86/"/>
+    <id>https://leo.red/2019/12/28/mac10.15%E5%A4%AA%E5%9D%91%E4%BA%86/</id>
+    <published>2019-12-28T04:01:00.000Z</published>
+    <updated>2019-12-27T16:02:26.516Z</updated>
+    
+    <content type="html"><![CDATA[<p>哇，10.15太坑了<br>莫名xcode环境就丢了，官方的重装方法和各类博客都没用<br>曲折前行半个多小时无果<br>突然被我揪到node-gyp的一条半月前回答直戳要害，解决<br>系统大版本升级坑真多</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;哇，10.15太坑了&lt;br&gt;莫名xcode环境就丢了，官方的重装方法和各类博客都没用&lt;br&gt;曲折前行半个多小时无果&lt;br&gt;突然被我揪到node-gyp的一条半月前回答直戳要害，解决&lt;br&gt;系统大版本升级坑真多&lt;/p&gt;
+
+      
+    
+    </summary>
+    
+    
+      <category term="code" scheme="https://leo.red/categories/code/"/>
+    
+    
+      <category term="code" scheme="https://leo.red/tags/code/"/>
+    
+  </entry>
   
   <entry>
     <title>属于年少的迷茫</title>
