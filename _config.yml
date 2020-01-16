@@ -3,17 +3,17 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Leo
-subtitle: Leo
-description: 人是万物的尺度。
+title: LEO的阁楼
+subtitle: LEO
+description: 要静悄悄的哦 🤫
 keywords:
-author: Leo
+author: LEO
 language: 
 timezone:
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: https://leo.red/
+url: https://blog.leo.red/
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
