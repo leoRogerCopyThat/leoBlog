@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search> 
+  
+  
+    
+    <entry>
+      <title>持续集成测试</title>
+      <link href="/2020/07/11/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E6%B5%8B%E8%AF%95/"/>
+      <url>/2020/07/11/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E6%B5%8B%E8%AF%95/</url>
+      
+        <content type="html"><![CDATA[<p>持续集成测试</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> test </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>用户注册登录前后端加密流程</title>
+      <link href="/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/"/>
+      <url>/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/</url>
+      
+        <content type="html"><![CDATA[<blockquote><p>截取自微信聊天，有空整理。</p></blockquote><p>「乐予忘忧：密码加密是怎么实现的」</p><hr><p>长篇大论预警。<br>既然你node有讲到后端安全部分，现在有空和就你说说，我尽量说的通俗易懂些。</p><p>一般的内部项目或者不重要的项目，这这样加密已经够了，安全性不会太差，我也不知道你salt怎么生成的，应该没啥大问题。<br>我所里那个老爷系统，没上https，密码传输还是明文，照样安稳运行了这么多年。。不过如果有被中间人拦截登陆过也不得而知。</p><p>下面我说说我理解并在执行的在高保密度的项目中，相对规范加密流程是怎么做的：</p><p>首先，密码在前端部分就得加密，并不是说我们有了https信道加密就不用再做前端加密这件事了， 如果系统用户在一个大公司内网内访问，照样会面临内网证书伪造抓包。</p><p>这时的前端加密，当然不是想当然的套个md5就可以往服务器传，而是会使用RSA技术（类似我们密钥登录服务器，拿私钥解公钥），我们现在除了客户端（client），再加入两个新角色，server服务端，和openssl端，角色到位，我们来模拟下请求：</p><p>下面的描述我们用简写c-client，s-server，o-openssl：<br>c端在我们输入密码点登录之后，先向s端发出登录请求，<br>s端收到登录请求后，向o端发起申领密钥对请求，o端会生成并用base64返回a和b密钥对给s端，<br>s端收到密钥对后保留密钥b，把密钥a发送给c端，<br>然后c端拿收到的密钥a来加密用户输入的密码，然后把加密后的内容传给s端<br>——-至此，c端加密并发送给s端用户密码的阶段完成</p><p>下面进入s端解密步骤：<br>这时s端拿到的密码还不是明文的，肯定不能直接加密存储，因为下一次从o端领到的密钥对肯定不一样了，所以这时s端就要用刚才还留着的密钥b来解密c端发送过来的加密内容，解密完就是用户输的明文密码了。</p><p>然后s端开始对密码进行加密入库或者对比登录操作：<br>在加密前，先加入些pepper（胡椒），一般是固定内容，主要针对的场景是数据库暴露但是应用服务器安全，可以拖延字典攻击的时间，比如用户输入密码明文是pass123，我的pepper是leocool，那么第一步操作后，等待加密的内容就变成了pass123leocool</p><p>接着会使用Blowfish之类的模块进行哈希加密，使用造好的轮子有很多好处，比如我们这些没正经研究过密码学的半吊子，在解决密码问题上总会有小问题；用它还能让加salt（盐）和哈希加密及base64编码一步完成；还不用再单独拿个字段存salt等等。</p><p>我拿py的举例，比如：<br>我们先进行注册入库操作，执行<br>bcrypt.hashpw(“pass123leocoo”, bcrypt.gensalt())<br>bcrypt.hashpw接受两个参数，要加密的文本和salt，bcrypt.gensalt()将会自动生成一个salt。<br>执行完成后，结果就可以直接入库了，我们把输出结果打印下：<br>$2b$12$K947InrSXM6XvNoErbAcj.K5YQ/OSVvJ802MxSWNgXdrjmru8Grs2<br>结果分为4部分，$2b表明这是bcrypt格式的哈希，$12是cost值（成本）默认是12，第三部分是22位的salt，剩下的部分就是对”pass123leocoo”哈希后的base64编码的值。</p><p>那么如果这是一次登录，我们就需要拿数据库里的密文和加密数据进行比对，比如我们把刚才加密好的密文从数据库中取出，存入hash_pass变量，然后执行<br>pass = bcrypt.hashpw(“pass123leocoo”, hash_pass)<br>pass  == hash_pass<br>如果结果为true，即比对成功，我们可以看到，在执行对比加密时，刚才填bcrypt.gensalt()的地方换成了hash_pass，密文被当作solt传入了，是因为实际的比较中，它进行了版本的校验以及截断，重用了hash_pass中的salt值，所以最后生成的字符串是一样的。</p><p>至此，一个相对规范的加密解密流程就完成了。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> code </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> code </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>雷电3牛逼</title>
+      <link href="/2019/12/28/%E9%9B%B7%E7%94%B53%E7%89%9B%E9%80%BC/"/>
+      <url>/2019/12/28/%E9%9B%B7%E7%94%B53%E7%89%9B%E9%80%BC/</url>
+      
+        <content type="html"><![CDATA[<p>拿两台mac测试雷电3线<br>直接把ssd榨干也没到线的传输极限<br>雷电3牛逼！</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> code </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> code </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>mac10.15太坑了</title>
+      <link href="/2019/12/28/mac10.15%E5%A4%AA%E5%9D%91%E4%BA%86/"/>
+      <url>/2019/12/28/mac10.15%E5%A4%AA%E5%9D%91%E4%BA%86/</url>
+      
+        <content type="html"><![CDATA[<p>哇，10.15太坑了<br>莫名xcode环境就丢了，官方的重装方法和各类博客都没用<br>曲折前行半个多小时无果<br>突然被我揪到node-gyp的一条半月前回答直戳要害，解决<br>系统大版本升级坑真多</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> code </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> code </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>我的个拖延症啊</title>
+      <link href="/2019/01/02/%E6%88%91%E7%9A%84%E4%B8%AA%E6%8B%96%E5%BB%B6%E7%97%87%E5%95%8A/"/>
+      <url>/2019/01/02/%E6%88%91%E7%9A%84%E4%B8%AA%E6%8B%96%E5%BB%B6%E7%97%87%E5%95%8A/</url>
+      
+        <content type="html"><![CDATA[<p>note station 里的待办事项都已经撑满到一页显示不下<br>就连关系到奖金和收入的年终总结和给客户的报价单都懒得写<br>部门经理过来催收了好几次，还打趣问我年终奖还想不想要了，一时语塞<br>仿佛到了年末做啥都提不起兴趣，是期待着放假？还是想逃避繁杂的事情？我也不知道</p><p>今天看了个TED的演讲，是关于拖延症的<br>说有拖延症人的大脑里<br>分别有个理智的决策者，以及一只即时行乐的猴子，还有个惊恐怪兽<br>当某件事还有大把时间剩余的时候，猴子就会占据主导，及时行乐</p><p>随着时间一天天过去，离这件事约定的日期越来越近的时候，惊恐怪兽这时候就会苏醒<br>猴子当然是怕怪兽的，吓得四处逃窜，理智的决策者这时又能占据主导权了<br>所以拖延症的人总能在最后时间段以惊人的效率完成某件事</p><p>但是我感觉我的脑子里应该不止一只猴子，可能有一个部落！<br>所以它们才不怕惊恐怪兽呢，估计惊恐怪兽和理智决策者都缩在角落瑟瑟发抖</p><p>领导：这就是你过 death line 这么久还不交作业的原因么！？<br>（嗯！）</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 闲聊 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 闲聊 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>踩一波18年的小尾巴</title>
+      <link href="/2018/12/31/%E8%B8%A9%E4%B8%80%E6%B3%A218%E5%B9%B4%E7%9A%84%E5%B0%8F%E5%B0%BE%E5%B7%B4/"/>
+      <url>/2018/12/31/%E8%B8%A9%E4%B8%80%E6%B3%A218%E5%B9%B4%E7%9A%84%E5%B0%8F%E5%B0%BE%E5%B7%B4/</url>
+      
+        <content type="html"><![CDATA[<h3 id="0x0-计划不就是写着装逼的么（误"><a href="#0x0-计划不就是写着装逼的么（误" class="headerlink" title="0x0 计划不就是写着装逼的么（误"></a>0x0 计划不就是写着装逼的么（误</h3><p>在2018年的小尾巴，我终于想起了年初的计划，说要写一整年的博客。。。<br>这个计划就像我年初设定的减肥计划一样。。早早的被抛之脑后<br>不过，这一年倒也没放弃对学习的坚持<br>一年间发生的事情太多，再回顾也太冗长，就记录下我元旦假期里都干了啥吧</p><h3 id="0x1-真香"><a href="#0x1-真香" class="headerlink" title="0x1 真香"></a>0x1 真香</h3><p>年中的时候，我还满腔热血在java的世界里厮杀<br>但是到了年末，发现需要面对越来越多的平台，以及各种适配需求，开始感觉力不从心<br>这时我把目光转回了曾经嗤之以鼻的vue，以及万(keng)能(die)的js<br>看着weex的一套代码走天下，Nuxt.js的轻便高效，Element-UI的即拿即用，甚是欢喜<br>那么说干就干，先拿vue开刀<br>本想着先作为工作之余的学习，就不在工作的mac上配置，使用家里的win台式机进行配置node，webpack，vue-cli等环境<br>但在忍受了小半天cmd的不趁手，各种系统变量都要手动配的问题后，果断放弃<br>乖乖的用回了我的unix bash<br>跟着文档看了一天，着手写了几个demo之后，竟觉得vue也顺眼起来(其实就是自己太蠢以前大致过了一遍文档似懂非懂就开始写，然后觉得不好用就扔了)<br>那么19年应该会沿着vue的技术栈深耕一波吧</p><h3 id="0x2-该死的新计划"><a href="#0x2-该死的新计划" class="headerlink" title="0x2 该死的新计划"></a>0x2 该死的新计划</h3><p>既然凑巧是18年最后一天了，顺道也就把明年的基础计划给订了<br>1、万年不变的减肥计划<br>2、cad的熟练使用（杭州人民职校的一个项目，陈总需求里竟然要画cad了，原本都只是做做平面，不过既然有需求，那么硬着头皮也得上喽<br>3、早睡早起！（今年被同事诟病了一万次的坏习惯，而且自己也明显感觉身体吃不消，一定要改掉它<br>4、基于js的全栈路线，node、Vue全家桶、Koa2、Nuxt、POI、Element-UI、Redis、MongoDB</p><h3 id="0x3-新年快乐"><a href="#0x3-新年快乐" class="headerlink" title="0x3 新年快乐"></a>0x3 新年快乐</h3><p>也没啥说的了，拜个早年吧（逃</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 闲聊 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 闲聊 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Hello World</title>
+      <link href="/2018/12/31/hello-world/"/>
+      <url>/2018/12/31/hello-world/</url>
+      
+        <content type="html"><![CDATA[<p>Hello World！</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Hi </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Hi </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+  
+  
+</search>

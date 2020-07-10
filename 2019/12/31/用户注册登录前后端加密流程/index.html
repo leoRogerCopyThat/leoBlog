@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="截取自微信聊天，有空整理。  「乐予忘忧：密码加密是怎么实现的」  长篇大论预警。既然你node有讲到后端安全部分，现在有空和就你说说，我尽量说的通俗易懂些。 一般的内部项目或者不重要的项目，这这样加密已经够了，安全性不会太差，我也不知道你salt怎么生成的，应该没啥大问题。我所里那个老爷系统，没上https，密码传输还是明文，照样安稳运行了这么多年。。不过如果有被中间人拦截登陆过也不得而知。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用户注册登录前后端加密流程">
+<meta property="og:url" content="https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/index.html">
+<meta property="og:site_name" content="Leo的宝洞">
+<meta property="og:description" content="截取自微信聊天，有空整理。  「乐予忘忧：密码加密是怎么实现的」  长篇大论预警。既然你node有讲到后端安全部分，现在有空和就你说说，我尽量说的通俗易懂些。 一般的内部项目或者不重要的项目，这这样加密已经够了，安全性不会太差，我也不知道你salt怎么生成的，应该没啥大问题。我所里那个老爷系统，没上https，密码传输还是明文，照样安稳运行了这么多年。。不过如果有被中间人拦截登陆过也不得而知。">
+<meta property="article:published_time" content="2019-12-30T19:18:41.000Z">
+<meta property="article:modified_time" content="2019-12-30T19:22:59.916Z">
+<meta property="article:author" content="Leo Roger">
+<meta property="article:tag" content="code">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>用户注册登录前后端加密流程</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/atom.xml" title="Leo的宝洞" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/tags/">Tag</a></li>
+         
+          <li><a href="/categories/">Category</a></li>
+         
+          <li><a href="/search/">Search</a></li>
+         
+          <li><a href="/atom.xml">RSS</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2020/07/11/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E6%B5%8B%E8%AF%95/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2019/12/28/%E9%9B%B7%E7%94%B53%E7%89%9B%E9%80%BC/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/&text=用户注册登录前后端加密流程" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/&title=用户注册登录前后端加密流程" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/&is_video=false&description=用户注册登录前后端加密流程" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=用户注册登录前后端加密流程&body=Check out this article: https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/&title=用户注册登录前后端加密流程" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/&title=用户注册登录前后端加密流程" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/&title=用户注册登录前后端加密流程" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/&title=用户注册登录前后端加密流程" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/&name=用户注册登录前后端加密流程&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/&t=用户注册登录前后端加密流程" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        用户注册登录前后端加密流程
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Leo的宝洞</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2019-12-30T19:18:41.000Z" itemprop="datePublished">2019-12-31</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/code/">code</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/code/" rel="tag">code</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <blockquote>
+<p>截取自微信聊天，有空整理。</p>
+</blockquote>
+<p>「乐予忘忧：密码加密是怎么实现的」</p>
+<hr>
+<p>长篇大论预警。<br>既然你node有讲到后端安全部分，现在有空和就你说说，我尽量说的通俗易懂些。</p>
+<p>一般的内部项目或者不重要的项目，这这样加密已经够了，安全性不会太差，我也不知道你salt怎么生成的，应该没啥大问题。<br>我所里那个老爷系统，没上https，密码传输还是明文，照样安稳运行了这么多年。。不过如果有被中间人拦截登陆过也不得而知。</p>
+<p>下面我说说我理解并在执行的在高保密度的项目中，相对规范加密流程是怎么做的：</p>
+<p>首先，密码在前端部分就得加密，并不是说我们有了https信道加密就不用再做前端加密这件事了， 如果系统用户在一个大公司内网内访问，照样会面临内网证书伪造抓包。</p>
+<p>这时的前端加密，当然不是想当然的套个md5就可以往服务器传，而是会使用RSA技术（类似我们密钥登录服务器，拿私钥解公钥），我们现在除了客户端（client），再加入两个新角色，server服务端，和openssl端，角色到位，我们来模拟下请求：</p>
+<p>下面的描述我们用简写c-client，s-server，o-openssl：<br>c端在我们输入密码点登录之后，先向s端发出登录请求，<br>s端收到登录请求后，向o端发起申领密钥对请求，o端会生成并用base64返回a和b密钥对给s端，<br>s端收到密钥对后保留密钥b，把密钥a发送给c端，<br>然后c端拿收到的密钥a来加密用户输入的密码，然后把加密后的内容传给s端<br>——-至此，c端加密并发送给s端用户密码的阶段完成</p>
+<p>下面进入s端解密步骤：<br>这时s端拿到的密码还不是明文的，肯定不能直接加密存储，因为下一次从o端领到的密钥对肯定不一样了，所以这时s端就要用刚才还留着的密钥b来解密c端发送过来的加密内容，解密完就是用户输的明文密码了。</p>
+<p>然后s端开始对密码进行加密入库或者对比登录操作：<br>在加密前，先加入些pepper（胡椒），一般是固定内容，主要针对的场景是数据库暴露但是应用服务器安全，可以拖延字典攻击的时间，比如用户输入密码明文是pass123，我的pepper是leocool，那么第一步操作后，等待加密的内容就变成了pass123leocool</p>
+<p>接着会使用Blowfish之类的模块进行哈希加密，使用造好的轮子有很多好处，比如我们这些没正经研究过密码学的半吊子，在解决密码问题上总会有小问题；用它还能让加salt（盐）和哈希加密及base64编码一步完成；还不用再单独拿个字段存salt等等。</p>
+<p>我拿py的举例，比如：<br>我们先进行注册入库操作，执行<br>bcrypt.hashpw(“pass123leocoo”, bcrypt.gensalt())<br>bcrypt.hashpw接受两个参数，要加密的文本和salt，bcrypt.gensalt()将会自动生成一个salt。<br>执行完成后，结果就可以直接入库了，我们把输出结果打印下：<br>$2b$12$K947InrSXM6XvNoErbAcj.K5YQ/OSVvJ802MxSWNgXdrjmru8Grs2<br>结果分为4部分，$2b表明这是bcrypt格式的哈希，$12是cost值（成本）默认是12，第三部分是22位的salt，剩下的部分就是对”pass123leocoo”哈希后的base64编码的值。</p>
+<p>那么如果这是一次登录，我们就需要拿数据库里的密文和加密数据进行比对，比如我们把刚才加密好的密文从数据库中取出，存入hash_pass变量，然后执行<br>pass = bcrypt.hashpw(“pass123leocoo”, hash_pass)<br>pass  == hash_pass<br>如果结果为true，即比对成功，我们可以看到，在执行对比加密时，刚才填bcrypt.gensalt()的地方换成了hash_pass，密文被当作solt传入了，是因为实际的比较中，它进行了版本的校验以及截断，重用了hash_pass中的salt值，所以最后生成的字符串是一样的。</p>
+<p>至此，一个相对规范的加密解密流程就完成了。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/tags/">Tag</a></li>
+         
+          <li><a href="/categories/">Category</a></li>
+         
+          <li><a href="/search/">Search</a></li>
+         
+          <li><a href="/atom.xml">RSS</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/&text=用户注册登录前后端加密流程" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/&title=用户注册登录前后端加密流程" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/&is_video=false&description=用户注册登录前后端加密流程" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=用户注册登录前后端加密流程&body=Check out this article: https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/&title=用户注册登录前后端加密流程" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/&title=用户注册登录前后端加密流程" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/&title=用户注册登录前后端加密流程" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/&title=用户注册登录前后端加密流程" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/&name=用户注册登录前后端加密流程&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://blog.leo.red/2019/12/31/%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E5%89%8D%E5%90%8E%E7%AB%AF%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B/&t=用户注册登录前后端加密流程" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 Leo Roger
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/tags/">Tag</a></li>
+         
+          <li><a href="/categories/">Category</a></li>
+         
+          <li><a href="/search/">Search</a></li>
+         
+          <li><a href="/atom.xml">RSS</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>
