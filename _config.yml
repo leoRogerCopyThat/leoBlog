@@ -81,7 +81,7 @@ theme: cactus
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo: git@git.dev.tencent.com:zleo/leoBlog.git
+  repo: git@e.coding.net:zleo/leoBlog.git
   # repo: root@172.16.230.129:/var/repo/hexo.git
   # branch: master
   branch: coding-pages
